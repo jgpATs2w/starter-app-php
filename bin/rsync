@@ -1,0 +1,57 @@
+#!/bin/bash
+
+USER="jgarciap"
+DOMAIN="gpo.anaya.es"
+ROOT="/datos/gpo/";#end with slash
+EXCLUDE="bin/rsync_exclude"
+INCLUDE="bin/rsync_include"
+
+#################################################################
+
+read -p "¿Comprobamos antes? (S/n) " check;
+
+if [ -z $check ] || [ $check = S ]; then
+	n=n;
+fi
+
+read -p "Destino (v1): " target;
+if [ -z $target ]; then
+	target="v1/";
+else
+	target="$target/";
+fi
+
+to=$USER@$DOMAIN:$ROOT$target
+
+read -p "¿Subida o bajada? (S/b) " upload;
+
+if [ -z $upload ] || [ $upload = S ]; then
+	echo "subiendo a $to...";
+	pwd=`pwd`
+
+	echo ------------------------------------
+	echo    $pwd
+	echo "    |"
+	echo "    V"
+	echo 	$to
+	echo ------------------------------------
+
+	read -p "¿procedemos? (S/n)" confirm;
+
+	if [ -z $confirm ] || [ $confirm = S ] || [ $confirm = s ]; then
+		rsync -tuvzr$n --exclude-from=$EXCLUDE --include-from=$INCLUDE . $to
+
+	else
+		echo "operación cancelada"
+		exit 0
+	fi
+
+
+	exit 0
+else
+	echo "bajando de $to..."
+
+	rsync -tuvzr$n --exclude-from=$EXCLUDE --include-from=$INCLUDE $to .
+
+	exit 0
+fi

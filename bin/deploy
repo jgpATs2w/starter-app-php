@@ -1,0 +1,225 @@
+#!/usr/bin/env php
+<?php
+/* TODO:
+* - constraints check:
+    + must be in same folder as composer.json
+*/
+
+App::init();
+App::constraints($argv);
+App::run();
+
+//# functions
+//## install
+function showUser(){
+  $f = "/tmp/test.txt";
+  touch( $f );
+
+  $user = posix_getpwuid( fileowner( $f) );
+  unlink( $f );
+
+  line( "usuario: {$user['name']}" );
+}
+function showConfiguration(){
+  $file = Settings::$file;
+  if(is_file($file)){
+    $settings=require $file;
+
+    head($file,2);
+
+    line("BASE: ".BASE);
+    line("ROOT: ".ROOT);
+    line("STORE: ".STORE);
+    line("TMPUPLOAD: ".TMPUPLOAD);
+    line("TPL: ".TPL);
+    line("DBHOST: ".DBHOST);
+    line("DBUSER: ".DBUSER);
+    line("DBPASS: ".DBPASS);
+    line("DBDB: ".DBDB);
+
+    line("LOG: ",false);line(LOG?'true':'false');
+    line("LOGDIR: ".LOGDIR);
+    line("LOGFILE: ".LOGFILE);
+    line("DEBUG: ",false);line(DEBUG?'true':'false');
+    line("DEBUGECHO: ",false);line(DEBUGECHO?'true':'false');
+
+  }else{
+    die(ko("No existe $file"));
+  }
+
+  head("php",2);
+
+  foreach(Settings::$directives_to_check as $ini){
+
+    $value = ini_get($ini);
+    if(!$value) $value="false";
+    line("$ini: $value");
+  }
+
+  line("");
+  line("php version: ".phpversion());
+}
+function showConfigurationApache(){//TODO show only relevant modules
+  head("apache",2);
+  print_r(apache_get_modules());
+}
+function checkPermissions(){
+  line("");
+  line("revisando permisos de escritura...");
+  line("");
+  $writable_dirs = array(BASE,TMP);
+  foreach ( $writable_dirs as $dir ){
+    line("$dir: ",false);
+    line(is_writable( $dir )? ok(""): ko(""));
+  }
+}
+function checkMySQL(){
+  line("conexion a MySQL: ",false);
+  mysqli_connect(DBHOST,DBUSER,DBPASS,DBDB) or die(ko("no se puede conectar"));
+  line(ok(""));
+}
+function showServerStatus(){
+  $df = disk_free_space( BASE );
+  $dt = disk_total_space(BASE);
+  $du = $dt - $df;
+  $dp = sprintf('%.2f',($du / $dt) * 100);
+
+  line("espacio usado en " . BASE . " $dp%");
+
+  $f = ROOT;
+  $io = popen ( '/usr/bin/du -sh ' . $f, 'r' );
+  $size = fgets ( $io, 4096);
+  $size = substr ( $size, 0, strpos ( $size, "\t" ) );
+  pclose ( $io );
+
+  line('Directory: ' . $f . ' => Size: ' . sprintf( "%0.2f GB", $size / 1000 ));
+}
+
+//## helper
+function flush_start(){
+
+	if (ob_get_level() == 0)
+		ob_start();
+}
+function echo_flush( $msg ){
+	echo $msg;
+	ob_flush();
+	flush();
+}
+function head( $msg, $level=1){//TODO use $level
+  echo "# $msg" . PHP_EOL;
+}
+function line( $msg, $return = true ){
+  echo $msg;
+  if($return) echo_flush(PHP_EOL);
+}
+function ok( $msg = "" ){//TODO colorize
+    echo "OK $msg" . PHP_EOL;
+};
+function ko( $msg = "" ){
+    return "KO $msg" . PHP_EOL;
+};
+function oko( $cond ){
+  if( $cond() )
+  	\assert\ok();
+  else
+  	\assert\ko();
+}
+function fatal($message){
+  fwrite(
+      STDERR,
+      $message . PHP_EOL
+  );
+
+  die(1);
+}
+function shexec($cmd){
+  line("ejecutando '$cmd'");
+  echo shell_exec($cmd);
+}
+
+//classes
+class App
+{
+  static $options=null;
+  static function init(){
+    error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
+    ini_set('display_errors','On');
+    date_default_timezone_set('UTC');
+    flush_start();
+    Settings::init();
+
+    self::$options = getopt(Settings::$optionsShort, Settings::$optionsLong);
+    //var_dump( self::$options );
+  }
+  static function constraints($argv){
+    if(count($argv)<=0) fatal("debes decirme que hago");
+  }
+  static function run(){//FIXME shortoption tries to method
+    foreach(array_keys(self::$options) as $command){
+      head($command);
+      Commands::$command();
+    }
+
+    ok("fin");
+  }
+}
+
+class Commands
+{
+  function help(){
+    line("TODO: help");
+  }
+  function sync(){
+    line("TODO: sync");
+  }
+  function test(){
+    if(!is_file("phpunit.xml.dist")) fatal("no existe phpunit.xml.dist");
+
+    shexec("phpunit tests/unit/CDServiceTest.php > logs/test.out 2>&1");
+  }
+  function doc(){
+    head("swagger");
+    $swagger=__DIR__."/../assets/swagger.json";
+    $src=__DIR__."/../src";
+    shexec("./vendor/bin/swagger --output $swagger $src");
+    line("TODO: phpdoc");
+  }
+  function install(){
+    head("configuracion");//TODO: resolve the return in settings
+    showConfiguration();
+    //showConfigurationApache();
+
+    head("permisos");
+    showUser();
+    checkPermissions();
+
+    head("mysql");
+    checkMySQL();
+
+    head("servidor");
+    showServerStatus();
+  }
+
+  function run(){//TODO should show stdout in console
+    shexec("php -S 0.0.0.0:8888 index.php");
+  }
+  function all(){
+    line("TODO: all");
+  }
+}
+
+class Settings
+{
+  static $file=null;
+  static $directives_to_check = array( "post_max_size", "upload_max_filesize", "memory_limit", "allow_url_fopen", "display_errors", "short_open_tag");
+  static $optionsLong = ['help','sync','test','doc','install','run','all'];
+  static $optionsShort = 'hstdra';
+
+  public static function init(){
+    self::$file=__DIR__."/../src/settings_defined.php";
+  }
+
+}
+
+?>

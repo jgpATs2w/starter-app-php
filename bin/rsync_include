@@ -1,0 +1,3 @@
+tpl/*/site/config/*
+tpl/*/sh/*.sh
+tpl/*/iniciar.sh
