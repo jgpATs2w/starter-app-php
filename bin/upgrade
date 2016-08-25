@@ -1,0 +1,48 @@
+#!/bin/bash
+
+EXCLUDE="bin/rsync_exclude"
+INCLUDE="bin/rsync_include"
+
+#################################################################
+if [[ $# -eq 0 ]] ; then
+    echo 'debes pasar la ruta del destino como argumento';
+    exit 1
+fi
+
+target="$1";
+if [ ! -d $target ]; then
+	echo "$target no es un directorio.";
+	exit 1
+fi
+
+read -p "¿Comprobamos antes? (S/n) " check;
+
+if [ -z $check ] || [ $check = S ]; then
+	n=n;
+fi
+
+
+to=$ROOT$target
+
+echo "actualizando a $to...";
+pwd=`pwd`
+
+echo ------------------------------------
+echo    $pwd
+echo "    |"
+echo "    V"
+echo 	$to
+echo ------------------------------------
+
+read -p "¿procedemos? (S/n)" confirm;
+
+if [ -z $confirm ] || [ $confirm = S ] || [ $confirm = s ]; then
+	rsync -tuvzr$n --exclude-from=$EXCLUDE --include-from=$INCLUDE . $to
+
+else
+	echo "operación cancelada"
+	exit 0
+fi
+
+
+exit 0
