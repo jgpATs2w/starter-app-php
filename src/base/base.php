@@ -1,15 +1,5 @@
 <?php
 
-function echo_debug(){
-  echo "LAND: ".LAND;
-	echo "BASE: ".BASE;
-	echo "STORE: ".STORE;
-	echo "DBHOST: ".DBHOST;
-	echo "DBUSER: ".DBUSER;
-	echo "DBPASS: ".DBPASS;
-	echo "DBDB: ".DBDB;
-	echo "DEBUG: ",false;echo DEBUG?'true':'false';
-}
 function prettyprint_r($array){
  foreach($array as $key => $value){
    if(is_array($value)){
@@ -18,6 +8,8 @@ function prettyprint_r($array){
      echo "]<br>";
    }else if(is_object($value)){
      var_dump($value);
+   }else if(is_bool($value)){
+     printf("<b>%s</b>: %s<br>", $key, $value? "true": "false");
    }else
      printf("<b>%s</b>: %s<br>", $key, $value);
  }
@@ -25,7 +17,7 @@ function prettyprint_r($array){
 
 function sanitize_filename( $file ){
 	$file = str_replace(' ', '_', $file );
- $file = preg_replace("/[^\w\d\-_\.]*/", '', $file);
+  $file = preg_replace("/[^\w\d\-_\.]*/", '', $file);
 	$file = preg_replace("([\._]{2,})", '_', $file);
 	$file = trim($file, " _\.");
 

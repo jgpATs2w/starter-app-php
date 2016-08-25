@@ -1,14 +1,8 @@
 <?php
 namespace db;
 
-\db\connect();//TODO best place??
-function connect( ){
+DB::connect();
 
-    \db\DB::$con = mysqli_connect(DBHOST, DBUSER, DBPASS, DBDB ) or die("No se pudo conectar a la base de datos '".DBDB."'");
-	if (!\db\DB::$con->set_charset("utf8")) {
-	    printf("Error cargando el conjunto de caracteres utf8: %s\n", \db\DB::$con->error);
-	}
-}
 function query($q, $safe=false){
 
   if(strlen($q) > DB_MEMORY_LIMIT){
@@ -124,13 +118,132 @@ function _check( $result, $q = "" ){
   return true;
 }
 
-/* DB container, just support 1 connection */
 class DB{
     public static $con = null;
     public static $result = null;
+    private static $lastQuery= null;
+
+    static function connect(){
+      try{
+        self::$con = new \PDO("mysql:host=localhost;dbname=".DBDB, DBUSER, DBPASS);
+
+        //select the type of error produced
+        self::$con->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+      }catch(\PDOException $e){
+        die("No se ha podido conectar a la base de datos '".$e->getMessage()."'");
+      }
+    }
+    /*
+    * @param query complete query.
+    * @return void
+    */
+    static function query($query){
+      try{
+        self::$result= self::$con->query($query);
+        self::$lastQuery= $query;
+
+      }catch(\PDOException $e){
+        die("DB.query# no se ha podido ejecutar la query '$query, produciendo el error ' '".$e->getMessage()."'");
+      }
+    }
+
+    /*
+    * Warning: only works once per query. To reuse the result, iterate over the result->fetch() directly
+    * @param className Specifies the name of class to create the objects, 'stdClass' by default.
+    * @return array of objects
+    */
+    static function getSingle(){
+      try{
+        if(is_object(self::$result)){
+
+          return self::$result->fetchColumn(0);
+        }else
+          die("DB.getArray# el resultado del query '".self::$lastQuery."' no es un objeto, tiene el valor '".self::$result."'");
+
+      }catch(\PDOException $e){
+        die("DB.query# no se ha podido ejecutar la query '$query, produciendo el error ' '".$e->getMessage()."'");
+      }
+    }
+    /*
+    * Warning: only works once per query. To reuse the result, iterate over the result->fetch() directly
+    * @param className Specifies the name of class to create the objects, 'stdClass' by default.
+    * @return array of objects
+    */
+    static function getArray(){
+      try{
+        if(is_object(self::$result)){
+
+          return self::$result->fetchAll();
+        }else
+          die("DB.getArray# el resultado del query '".self::$lastQuery."' no es un objeto, tiene el valor '".self::$result."'");
+
+      }catch(\PDOException $e){
+        die("DB.query# no se ha podido ejecutar la query '$query, produciendo el error ' '".$e->getMessage()."'");
+      }
+    }
+
+    /*
+    * Warning: only works once per query. To reuse the result, iterate over the result->fetch() directly
+    * @param className Specifies the name of class to create the objects, 'stdClass' by default.
+    * @return array of objects
+    */
+    static function getObjects( $className = "stdClass" ){
+      try{
+        if(is_object(self::$result)){
+
+          return self::$result->fetchAll(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $className);
+        }else
+          die("DB.getArray# el resultado del query '".self::$lastQuery."' no es un objeto, tiene el valor '".self::$result."'");
+
+      }catch(\PDOException $e){
+        die("DB.query# no se ha podido ejecutar la query '$query, produciendo el error ' '".$e->getMessage()."'");
+      }
+    }
+
+    /*
+    * FIXME does not allow to use variables from outside, by now is only a reference of good code
+    * Calls passed function on every table's row
+    * @param callable function that receives $row as argument
+    * @return void
+    */
+    static function walk($callable){
+      try{
+        if(is_callable($callable)){
+          if(is_object(self::$result)){
+
+            while( $row= self::$result->fetch()){
+              $callable($row);
+            }
+
+          }else
+            die("DB.getArray# el resultado del query '".self::$lastQuery."' no es un objeto, tiene el valor '".self::$result."'");
+
+        }else
+          die("DB.walk# se debe pasar una función como argumento");
+
+      }catch(\PDOException $e){
+        die("DB.query# no se ha podido ejecutar la query '$query, produciendo el error ' '".$e->getMessage()."'");
+      }
+    }
+    static function transact($queries){
+      try{
+        self::$con->beginTransaction();
+        foreach($queries as $query){
+          self::$con->exec($query);
+        }
+        self::$con->commit();
+      }catch(\PDOException $e){
+        self::$con->rollback();
+
+        die("DB.transact# error en transaccion, rolledback '".$e->getMessage()."'");
+      }
+    }
 
     static function last_error(){
       return mysqli_error(self::$con);
     }
+
+
 }
 ?>

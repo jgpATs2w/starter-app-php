@@ -25,12 +25,49 @@ $settings= array(
 
 $app = new Slim\App($settings);
 
+//<dependencies
 $container = $app->getContainer();
 
 $container['renderer'] = function ($c) {
   $settings = $c->get('settings')['renderer'];
   return new Slim\Views\PhpRenderer($settings['template_path']);
 };
+// errors
+$container['errorHandler'] = function($c){
+  return function($request, $response, $exception) use ($c)
+    {
+
+      $json= array(
+        "status"=> 500,
+        "developer" => $exception->getMessage()
+      );
+
+      return $c['response']
+        ->withStatus(500)
+        ->withJson($json);
+
+    };
+};
+
+$container['notFoundHandler'] = function($c){
+  return function($request, $response) use ($c)
+    {
+
+      $json= array(
+        "status"=> 404,
+        "developer" => "Ruta no encontrada: revisa la sintaxis, solo estan admitidas urls del tipo /, recurso, recursos, recursos/id, recursos/id/recurso".PHP_EOL
+      );
+
+      $c['logger']->error("not found");
+
+      return $c['response']
+        ->withStatus(404)
+        ->withJson($json);
+    };
+};
+//dependencies>
+
+
 $app->get('/login', function ($request, $response, $args) {
     //TODO
     echo "Pendiente";

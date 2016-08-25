@@ -2,7 +2,6 @@
 
 define('PROJECT_ROOT', realpath(__DIR__ . '/..'));
 define('PHPUNIT', true);
-define('BASE_URI', 'http://localhost/a-geval/v1/');
 
 ///////////////////////
 
