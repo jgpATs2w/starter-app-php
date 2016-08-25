@@ -1,6 +1,7 @@
 <?php
 
 define( 'VERSION_NUMBER', 'v1'  );
+define( 'VERSION', '1.0'  );
 
 //DB parameters
 define( 'DBHOST', 'localhost' );
@@ -29,7 +30,7 @@ define( 'BASE_URL', $domain . VERSION_NUMBER);
 define( 'SRC', BASE . 'src/' );
 
 define( 'TMP', LAND . "tmp/" );
-define( 'STORE',     LAND     . 'store/' );
+define( 'STORE', LAND . 'store/' );
 
 /*
 * Debugging, set statically with defined or dinamically with ?debug

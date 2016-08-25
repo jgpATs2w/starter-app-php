@@ -2,17 +2,17 @@
 namespace metrics;
 
 function increase($name){
-  $name= \mysqli_real_escape_string(\db\DB::$con, $name);
-  $q= "INSERT INTO metrics (name, value_number) VALUES ('$name', 1)
-        ON DUPLICATE KEY UPDATE value_number = value_number + 1";
+
+  $q= "INSERT INTO metrics (name, value) VALUES ('$name', 1)
+        ON DUPLICATE KEY UPDATE value = value + 1";
 
   \db\query($q);
 }
 
 function set($name, $value){
-  $q= "INSERT INTO metrics (name, value_text) VALUES ('$name', '$value')
-        ON DUPLICATE KEY UPDATE value_text = '$value'";
-        
+  $q= "INSERT INTO metrics (name, value) VALUES ('$name', '$value')
+        ON DUPLICATE KEY UPDATE value = '$value'";
+
   \db\query($q);
 }
 

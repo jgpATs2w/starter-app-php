@@ -1,5 +1,8 @@
 # starter-app-php
 
+## Usage
+ -
+ - *Update repository*: locate this repo in same directory as target one and run '.bin/upgrade ../name_of_target'
 ## Design principles  
   - Standars: PSR, HTTP
   - TDD (integration & testing)

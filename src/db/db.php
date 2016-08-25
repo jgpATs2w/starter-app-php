@@ -4,63 +4,32 @@ namespace db;
 DB::connect();
 
 function query($q, $safe=false){
-
-  if(strlen($q) > DB_MEMORY_LIMIT){
-
-    \logger\error("db\query",  "query exceeded DB_MEMORY_LIMIT");
-    return false;
-  }
-
-  \db\DB::$result = mysqli_query( \db\DB::$con, $q);
-
-	if(_check( \db\DB::$result, $q )){
-    return \db\DB::$result;
-  }
-
-  if(!$safe)
-    \logger\error("db.query", $q . "produced a fatal error" .\db\DB::last_error());
-
-  return false;
+  DB::query($q);
 }
 function are_results(){
-    if( \db\get_array_full() )
-        return true;
-
-    return false;
+    return is_object(DB::$result);
 }
-function query_single($s){
+function query_single($q){
 
-	$result = mysqli_query( \db\DB::$con, $s );
+	DB::query($q);
 
-	_check($result, $s);
-	if( $result ){
-
-		$return = mysqli_fetch_array($result);
-	  return $return[0];
-	}else
-		return false;
+  return DB::getSingle();
 
 }
-function query_array( $s ){ \logger\debug( 'db.query_array', $s );
+//@deprecated don't use anymore, use DB::getArray or DB::getObjects
+function query_array( $q ){
 
-    $result = mysqli_query( \db\DB::$con, $s );
-
-	  _check($result);
-
-    return mysqli_fetch_assoc($result);//TODO remove indexed items
-
+    DB::query($q);
+    return DB::getArray();
 }
 
 function get_array_full( $onelevel = false, $clean= false, $keyColumn=false, $arrayToMerge= false ){
 
     $array = array();
     $i = 0;
-  	$result = \db\DB::$result;
 
-    _check($result);
-
-  	if( $result ){
-  		while( $row = \db\DB::$result->fetch_array() ){//TODO remove indexed items
+  	if( \db\DB::$result ){
+  		while( $row = DB::$result->fetch() ){
 
         if($keyColumn){
           $key= $row[$keyColumn];
@@ -78,8 +47,6 @@ function get_array_full( $onelevel = false, $clean= false, $keyColumn=false, $ar
 
   	    $i++;
   	  }
-
-  		\db\DB::$result->free();
   	}
     if($clean){
       foreach($array as $k=>$v){
@@ -94,28 +61,16 @@ function get_array_full( $onelevel = false, $clean= false, $keyColumn=false, $ar
     return $array;
 
 }
-function execute($s){ //\logger\debug( 'db.execute', $s );
+function execute($q){
 
-    $result =  mysqli_query( \db\DB::$con, $s );
+  DB::query($q);
 
-	_check( $result, $s );
-
-	return $result;
+	return true;
 
 }
 
 function last_id(){
 	return mysqli_insert_id(  \db\DB::$con );
-}
-
-function _check( $result, $q = "" ){
-	if( $result === false ){
-		///throw new \Exception( "db._check# error_mysql: '$q'. Produced MySQL error: '".\db\DB::last_error()."'" );//FIXME Fatal error: Call to undefined function Exception()
-    //\logger\log2file(" error_mysql: '$q'");
-    printJson(0,1,"db._check# error_mysql: '$q'. Produced MySQL error: '".\db\DB::last_error()."'" );
-    return false;
-  }
-  return true;
 }
 
 class DB{
@@ -132,6 +87,15 @@ class DB{
 
       }catch(\PDOException $e){
         die("No se ha podido conectar a la base de datos '".$e->getMessage()."'");
+      }
+    }
+
+    static function lastId(){
+      try{
+        return self::lasInsertId();
+
+      }catch(\PDOException $e){
+        die("DB.lastId# '".$e->getMessage()."'");
       }
     }
     /*
