@@ -86,16 +86,16 @@ class DB{
         self::$con->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
       }catch(\PDOException $e){
-        die("No se ha podido conectar a la base de datos '".$e->getMessage()."'");
+        throw new \Exception("No se ha podido conectar a la base de datos '".$e->getMessage()."'");
       }
     }
 
     static function lastId(){
       try{
-        return self::lasInsertId();
+        return self::$con->lastInsertId();
 
       }catch(\PDOException $e){
-        die("DB.lastId# '".$e->getMessage()."'");
+        throw new \Exception("DB.lastId# '".$e->getMessage()."'");
       }
     }
     /*
@@ -108,7 +108,7 @@ class DB{
         self::$lastQuery= $query;
 
       }catch(\PDOException $e){
-        die("DB.query# no se ha podido ejecutar la query '$query, produciendo el error ' '".$e->getMessage()."'");
+        throw new \Exception("DB.query# no se ha podido ejecutar la query '$query, produciendo el error ' '".$e->getMessage()."'");
       }
     }
 
@@ -123,10 +123,10 @@ class DB{
 
           return self::$result->fetchColumn(0);
         }else
-          die("DB.getArray# el resultado del query '".self::$lastQuery."' no es un objeto, tiene el valor '".self::$result."'");
+          throw new \Exception("DB.getArray# el resultado del query '".self::$lastQuery."' no es un objeto, tiene el valor '".self::$result."'");
 
       }catch(\PDOException $e){
-        die("DB.query# no se ha podido ejecutar la query '$query, produciendo el error ' '".$e->getMessage()."'");
+        throw new \Exception("DB.query# no se ha podido ejecutar la query '".self::$lastQuery."', produciendo el error ' '".$e->getMessage()."'");
       }
     }
     /*
@@ -140,10 +140,10 @@ class DB{
 
           return self::$result->fetchAll();
         }else
-          die("DB.getArray# el resultado del query '".self::$lastQuery."' no es un objeto, tiene el valor '".self::$result."'");
+          throw new \Exception("DB.getArray# el resultado del query '".self::$lastQuery."' no es un objeto, tiene el valor '".self::$result."'");
 
       }catch(\PDOException $e){
-        die("DB.query# no se ha podido ejecutar la query '$query, produciendo el error ' '".$e->getMessage()."'");
+        throw new \Exception("DB.query# no se ha podido ejecutar la query '".self::$lastQuery."', produciendo el error ' '".$e->getMessage()."'");
       }
     }
 
@@ -158,10 +158,10 @@ class DB{
 
           return self::$result->fetchAll(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $className);
         }else
-          die("DB.getArray# el resultado del query '".self::$lastQuery."' no es un objeto, tiene el valor '".self::$result."'");
+          throw new \Exception("DB.getArray# el resultado del query '".self::$lastQuery."' no es un objeto, tiene el valor '".self::$result."'");
 
       }catch(\PDOException $e){
-        die("DB.query# no se ha podido ejecutar la query '$query, produciendo el error ' '".$e->getMessage()."'");
+        throw new \Exception("DB.query# no se ha podido ejecutar la query '$query, produciendo el error ' '".$e->getMessage()."'");
       }
     }
 
@@ -181,13 +181,13 @@ class DB{
             }
 
           }else
-            die("DB.getArray# el resultado del query '".self::$lastQuery."' no es un objeto, tiene el valor '".self::$result."'");
+            throw new \Exception("DB.getArray# el resultado del query '".self::$lastQuery."' no es un objeto, tiene el valor '".self::$result."'");
 
         }else
-          die("DB.walk# se debe pasar una función como argumento");
+          throw new \Exception("DB.walk# se debe pasar una función como argumento");
 
       }catch(\PDOException $e){
-        die("DB.query# no se ha podido ejecutar la query '$query, produciendo el error ' '".$e->getMessage()."'");
+        throw new \Exception("DB.query# no se ha podido ejecutar la query '$query, produciendo el error ' '".$e->getMessage()."'");
       }
     }
     static function transact($queries){
@@ -200,7 +200,7 @@ class DB{
       }catch(\PDOException $e){
         self::$con->rollback();
 
-        die("DB.transact# error en transaccion, rolledback '".$e->getMessage()."'");
+        throw new \Exception("DB.transact# error en transaccion, rolledback '".$e->getMessage()."'");
       }
     }
 

@@ -1,10 +1,3 @@
-<?php
-
-if(isset($_GET['debug']))
-	echo_debug();
-
-?>
-
 <!DOCTYPE html>
 <html>
 <head>

@@ -246,9 +246,10 @@ function cancel_check( $process ){
 }
 function getResponse($result , $m , $return = null){
   $R = array();
-      $R[ 'result' ] = $result;
+      $R[ 'status' ] = $result;
       $R[ 'message' ] = $m;
-      $R[ 'return' ] = $return;
+      if($return)
+        $R[ 'return' ] = $return;
 
   return $R;
 }
