@@ -2,11 +2,11 @@
 
 use \db\DB;
 
-class DBTest extends \AppTest
+class DBTest extends \AppTestCase
 {
 
   public function test_db(){
-    
+
     //select as array
     DB::query("select * from logger");
 

@@ -1,6 +1,6 @@
 <?php
 
-class IntegrationTest extends \AppTest
+class IntegrationTest extends \AppTestCase
 {
     public function test_home(){
 

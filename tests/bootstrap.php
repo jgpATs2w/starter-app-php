@@ -10,7 +10,9 @@ error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 date_default_timezone_set('UTC');
-define( 'PRINT_DIE' , false );
+
+define( 'PRINT_DIE', false );
+define( 'MOCK', true );
 
 require PROJECT_ROOT . '/src/config.php';
 require PROJECT_ROOT . '/src/base/base.php';
@@ -18,14 +20,19 @@ require PROJECT_ROOT . '/src/db/db.php';
 require PROJECT_ROOT . '/src/session/session.php';
 require PROJECT_ROOT . '/src/logger/logger.php';
 require PROJECT_ROOT . '/src/metrics/metrics.php';
+require PROJECT_ROOT . '/src/app.php';
 
-class AppTest extends \PHPUnit_Framework_TestCase{
+class AppTestCase extends \PHPUnit_Framework_TestCase{
   function test_structure(){
     $this->assertTrue(true);
   }
 
   function getResponse($json){
-    return get_object_vars( json_decode($json) );
+    if(json_decode($json)){
+      return get_object_vars( json_decode($json) );
+    }else
+      throw new \Exception("invalid JSON '$json'");
+
   }
   function getReturn ( $json, $ok = 1 ){
       $Response= $this->getResponse($json);

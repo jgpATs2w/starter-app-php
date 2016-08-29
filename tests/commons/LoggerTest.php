@@ -1,6 +1,6 @@
 <?php
 
-class LoggerTest extends \AppTest
+class LoggerTest extends \AppTestCase
 {
 
   public function test_logs(){

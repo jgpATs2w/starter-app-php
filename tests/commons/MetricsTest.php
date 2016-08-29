@@ -1,6 +1,6 @@
 <?php
 
-class MetricsTest extends \AppTest
+class MetricsTest extends \AppTestCase
 {
 
   public function test_metrics(){
