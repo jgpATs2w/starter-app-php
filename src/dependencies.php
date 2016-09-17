@@ -13,6 +13,7 @@ $container['renderer'] = function ($c) {
   $settings = $c->get('settings')['renderer'];
   return new Slim\Views\PhpRenderer($settings['template_path']);
 };
+
 // errors
 $container['errorHandler'] = function($c){
   return function($request, $response, $exception) use ($c)
@@ -41,10 +42,8 @@ $container['notFoundHandler'] = function($c){
 
       $json= array(
         "status"=> 404,
-        "developer" => "Ruta no encontrada: revisa la sintaxis, solo estan admitidas urls del tipo /, recurso, recursos, recursos/id, recursos/id/recurso".PHP_EOL
+        "developer" => "Ruta no encontrada".PHP_EOL
       );
-
-      $c['logger']->error("not found");
 
       return $c['response']
         ->withStatus(404)

@@ -1,78 +1,6 @@
 <?php
 namespace db;
 
-DB::connect();
-
-function query($q, $safe=false){
-  DB::query($q);
-}
-function are_results(){
-    return is_object(DB::$result);
-}
-function query_single($q){
-
-	DB::query($q);
-
-  return DB::getSingle();
-
-}
-//@deprecated don't use anymore, use DB::getArray or DB::getObjects
-function query_array( $q ){
-
-    DB::query($q);
-    return DB::getArray();
-}
-
-function get_array_full( $onelevel = false, $clean= false, $keyColumn=false, $arrayToMerge= false ){
-
-    $array = array();
-    $i = 0;
-
-  	if( \db\DB::$result ){
-  		while( $row = DB::$result->fetch() ){
-
-        if($keyColumn){
-          $key= $row[$keyColumn];
-        }else
-  	      $key= $i;
-
-        if( $onelevel){
-  				$content = $row[0];
-        }elseif($arrayToMerge && array_key_exists($key, $arrayToMerge)){
-          $content= array_merge($arrayToMerge[$key], $row);
-        }else
-          $content= $row;
-
-        $array[$key]= $content;
-
-  	    $i++;
-  	  }
-  	}
-    if($clean){
-      foreach($array as $k=>$v){
-        foreach($v as $kk=>$vv){
-          if(is_numeric($kk))
-              unset($array[$k][$kk]);
-
-        }
-      }
-    }
-
-    return $array;
-
-}
-function execute($q){
-
-  DB::query($q);
-
-	return true;
-
-}
-
-function last_id(){
-	return mysqli_insert_id(  \db\DB::$con );
-}
-
 class DB{
     public static $con = null;
     public static $result = null;
@@ -91,6 +19,8 @@ class DB{
     }
 
     static function lastId(){
+      if(is_null(self::$con))
+        DB::connect();
       try{
         return self::$con->lastInsertId();
 
@@ -103,6 +33,8 @@ class DB{
     * @return void
     */
     static function query($query){
+      if(is_null(self::$con))
+        DB::connect();
       try{
         self::$result= self::$con->query($query);
         self::$lastQuery= $query;
@@ -118,6 +50,8 @@ class DB{
     * @return array of objects
     */
     static function getSingle(){
+      if(is_null(self::$con))
+        DB::connect();
       try{
         if(is_object(self::$result)){
 
@@ -135,6 +69,8 @@ class DB{
     * @return array of objects
     */
     static function getArray(){
+      if(is_null(self::$con))
+        DB::connect();
       try{
         if(is_object(self::$result)){
 
@@ -153,6 +89,8 @@ class DB{
     * @return array of objects
     */
     static function getObjects( $className = "stdClass" ){
+      if(is_null(self::$con))
+        DB::connect();
       try{
         if(is_object(self::$result)){
 
@@ -172,6 +110,9 @@ class DB{
     * @return void
     */
     static function walk($callable){
+      if(is_null(self::$con))
+        DB::connect();
+
       try{
         if(is_callable($callable)){
           if(is_object(self::$result)){
@@ -190,7 +131,11 @@ class DB{
         throw new \Exception("DB.query# no se ha podido ejecutar la query '$query, produciendo el error ' '".$e->getMessage()."'");
       }
     }
+
     static function transact($queries){
+      if(is_null(self::$con))
+        DB::connect();
+
       try{
         self::$con->beginTransaction();
         foreach($queries as $query){
