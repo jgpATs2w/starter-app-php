@@ -31,19 +31,6 @@
 
 	<script type="text/javascript" src="view/app.js"></script>
 
-  <script type="text/javascript">
-
-  angular
-    .module('myApp', [])
-    .controller('HomeController', HomeController);
-
-  function HomeController($scope) {
-
-	    $scope.sayHello = function() {
-    	   window.alert("Hello: "+$scope.name);
-	    }
-	}
-
-</script>
+  <script type="text/javascript" src="view/home/home.js"></script>
 
 </body>

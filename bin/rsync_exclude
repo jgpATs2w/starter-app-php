@@ -1,11 +1,1 @@
-bin/
-README.md
-phpunit.xml.dist
-index.php
-view/*.php
-view/app.js
-view/assets
-.git
-.htaccess
-composer.json
-src/config.php
+*

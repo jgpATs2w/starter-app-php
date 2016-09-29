@@ -10,7 +10,7 @@ define( 'VERSION', '1.0'  );
 define( 'DBHOST', 'localhost' );
 define( 'DBUSER', 'starter-app-php' );
 define( 'DBPASS', 'starter-app-php' );
-define( 'DBDB', "starter_app_php" );
+define( 'DBDB', "starter-app-php" );
 define( 'DB_MEMORY_LIMIT', 10000);
 
 //url web server root

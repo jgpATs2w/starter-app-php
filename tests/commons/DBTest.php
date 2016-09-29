@@ -12,7 +12,8 @@ class DBTest extends \AppTestCase
 
     $logs= DB::getArray();
 
-    $this->assertTrue(is_string($logs[0]['message']), "la tabla logger debe contener al menos una fila, y el mensaje deberá llegar como string");
+    $this->assertTrue(count($logs)>0 && is_string($logs[0]['message']), "la tabla logger debe contener al menos una fila, y 
+    el mensaje deberá llegar como string");
 
     //select as array of objects
     DB::query("select * from logger");

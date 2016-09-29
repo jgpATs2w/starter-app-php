@@ -1,13 +1,15 @@
 <?php
 
 function prettyprint_r($array){
+ if(is_object($array))
+  $array= (array)$array;
  foreach($array as $key => $value){
    if(is_array($value)){
      printf("<b>&nbsp;%s</b>[<br>", $key);
      prettyprint_r($value);
      echo "]<br>";
    }else if(is_object($value)){
-     var_dump($value);
+     prettyprint_r($value);
    }else if(is_bool($value)){
      printf("<b>%s</b>: %s<br>", $key, $value? "true": "false");
    }else

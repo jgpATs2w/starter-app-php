@@ -11,11 +11,14 @@ class ComposerStaticInit27ae61a25209c71c45c493119d01c3b2
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        '0ccdf99b8f62f02c52cba55802e0c2e7' => __DIR__ . '/..' . '/zircote/swagger-php/src/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
         'S' => 
         array (
+            'Symfony\\Component\\Finder\\' => 25,
+            'Swagger\\' => 8,
             'Slim\\Views\\' => 11,
             'Slim\\' => 5,
         ),
@@ -44,6 +47,14 @@ class ComposerStaticInit27ae61a25209c71c45c493119d01c3b2
     );
 
     public static $prefixDirsPsr4 = array (
+        'Symfony\\Component\\Finder\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/finder',
+        ),
+        'Swagger\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/zircote/swagger-php/src',
+        ),
         'Slim\\Views\\' => 
         array (
             0 => __DIR__ . '/..' . '/slim/php-view/src',
@@ -92,6 +103,17 @@ class ComposerStaticInit27ae61a25209c71c45c493119d01c3b2
             'Pimple' => 
             array (
                 0 => __DIR__ . '/..' . '/pimple/pimple/src',
+            ),
+        ),
+        'D' => 
+        array (
+            'Doctrine\\Common\\Lexer\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/lexer/lib',
+            ),
+            'Doctrine\\Common\\Annotations\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/annotations/lib',
             ),
         ),
     );
