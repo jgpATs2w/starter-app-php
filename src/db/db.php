@@ -1,6 +1,44 @@
 <?php
 namespace db;
 
+
+DB::connect();
+
+function query($q, $safe=false){
+  DB::query($q);
+}
+function are_results(){
+    return is_object(DB::$result);
+}
+function query_single($q){
+
+	DB::query($q);
+
+  return DB::getSingle();
+
+}
+//@deprecated don't use anymore, use DB::getArray or DB::getObjects
+function query_array( $q ){
+
+    DB::query($q);
+    return DB::getArray();
+}
+
+function get_array_full(){
+  return DB::getArray();
+}
+function execute($q){
+
+  DB::query($q);
+
+	return true;
+
+}
+
+function last_id(){
+	return mysqli_insert_id(  \db\DB::$con );
+}
+
 class DB{
     public static $con = null;
     public static $result = null;

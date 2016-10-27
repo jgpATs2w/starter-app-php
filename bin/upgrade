@@ -9,7 +9,20 @@ if [[ $# -eq 0 ]] ; then
     exit 1
 fi
 
-target="$1";
+reverse=false
+
+while getopts 'r' flag; do
+  case "${flag}" in
+    r) reverse=true ;;
+  esac
+done
+
+if $reverse; then
+  target="$2";
+else
+  target="$1";
+fi
+
 if [ ! -d $target ]; then
 	echo "$target no es un directorio.";
 	exit 1
@@ -29,15 +42,23 @@ pwd=`pwd`
 
 echo ------------------------------------
 echo    $pwd
-echo "    |"
+echo "    ^"
 echo "    V"
 echo 	$to
 echo ------------------------------------
 
+if $reverse; then
+  echo "en modo inverso";
+fi
+
 read -p "¿procedemos? (S/n)" confirm;
 
 if [ -z $confirm ] || [ $confirm = S ] || [ $confirm = s ]; then
-	rsync -tuvzr$n --exclude-from=$EXCLUDE --include-from=$INCLUDE . $to
+  if $reverse; then
+    rsync -tuvzr$n --exclude-from=$EXCLUDE --include-from=$INCLUDE $to .
+  else
+    rsync -tuvzr$n --exclude-from=$EXCLUDE --include-from=$INCLUDE . $to
+  fi
 
   echo "";
   echo "Actualizado correctamente!";
@@ -47,6 +68,4 @@ else
 	echo "operación cancelada"
 	exit 0
 fi
-
-
 exit 0

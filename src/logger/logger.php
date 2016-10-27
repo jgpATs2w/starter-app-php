@@ -41,7 +41,7 @@ class Logger{
 
 		$q= "insert into logger (logtime, tag, level, message) values (NOW(), '$tag', '$level', '$message')";
 
-		\db\query($q);
+		\db\DB::query($q);
 	}
 
 	public static function error( $tag, $message ){

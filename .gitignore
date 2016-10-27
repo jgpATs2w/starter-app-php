@@ -1,0 +1,7 @@
+trash
+logs/*
+!.gitkeep
+node_modules/
+bower_components/
+tmp
+vendor/
