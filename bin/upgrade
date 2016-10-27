@@ -39,6 +39,10 @@ read -p "¿procedemos? (S/n)" confirm;
 if [ -z $confirm ] || [ $confirm = S ] || [ $confirm = s ]; then
 	rsync -tuvzr$n --exclude-from=$EXCLUDE --include-from=$INCLUDE . $to
 
+  echo "";
+  echo "Actualizado correctamente!";
+  echo "comprueba manualmente src/config.php y los siguientes archivos excluidos:";
+  more $EXCLUDE;
 else
 	echo "operación cancelada"
 	exit 0
